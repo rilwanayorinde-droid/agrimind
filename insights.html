@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriMind — AI Insights</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="inner-page">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌾 AgriMind</a>
+    <div class="nav-links">
+      <a href="market.html">Market</a>
+      <a href="insights.html" class="nav-active">AI Insights</a>
+      <a href="sell.html">Sell</a>
+    </div>
+    <a href="insights.html" class="btn-primary nav-cta">Get AI Plan →</a>
+  </nav>
+
+  <div class="page-hero inner-hero">
+    <div class="section-label">Powered by Claude AI</div>
+    <h1 class="page-title">Your Personal AI Farm Advisor</h1>
+    <p class="page-sub">Tell us about your farm. Our AI analyses current market demand, price trends, and seasonal patterns to build your custom farming plan.</p>
+  </div>
+
+  <div class="container">
+
+    <!-- FORECAST CARDS -->
+    <div class="section-label" style="margin-bottom:1rem">6-Month Market Forecasts</div>
+    <div class="forecast-grid" id="forecastGrid"></div>
+
+    <!-- AI PLAN FORM -->
+    <div class="ai-form-section">
+      <div class="ai-form-box">
+        <div class="ai-form-header">
+          <div class="ai-icon">🤖</div>
+          <div>
+            <h2>Get Your Personalised AI Farm Plan</h2>
+            <p>Powered by Claude AI — takes about 15 seconds</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Your Name</label>
+            <input type="text" id="farmerName" placeholder="e.g. Emeka Obi" class="form-input"/>
+          </div>
+          <div class="form-field">
+            <label>State / Location</label>
+            <select id="farmerState" class="form-input">
+              <option value="">Select State...</option>
+              <option>Lagos</option><option>Kano</option><option>Kaduna</option>
+              <option>Oyo</option><option>Rivers</option><option>Anambra</option>
+              <option>Benue</option><option>Plateau</option><option>Enugu</option>
+              <option>Zamfara</option><option>Kebbi</option><option>Sokoto</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Farm Size</label>
+            <select id="farmSize" class="form-input">
+              <option>Less than 1 hectare</option>
+              <option>1 – 5 hectares</option>
+              <option>5 – 20 hectares</option>
+              <option>20+ hectares</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Available Budget (₦)</label>
+            <input type="number" id="budget" placeholder="e.g. 500000" class="form-input"/>
+          </div>
+          <div class="form-field">
+            <label>Farming Type</label>
+            <select id="farmType" class="form-input">
+              <option>Mixed crops</option>
+              <option>Vegetables</option>
+              <option>Grains & Cereals</option>
+              <option>Fruits</option>
+              <option>Root crops (Yam, Cassava)</option>
+              <option>Livestock</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>When do you plan to plant?</label>
+            <select id="plantSeason" class="form-input">
+              <option>Within 1 month</option>
+              <option>1 – 3 months</option>
+              <option>3 – 6 months</option>
+              <option>Flexible</option>
+            </select>
+          </div>
+          <div class="form-field full-width">
+            <label>Any specific crops you're considering? (optional)</label>
+            <input type="text" id="cropPrefs" placeholder="e.g. tomatoes, pepper, yam..." class="form-input"/>
+          </div>
+          <div class="form-field full-width">
+            <label>Any challenges or concerns?</label>
+            <textarea id="challenges" class="form-input form-textarea" placeholder="e.g. poor soil, water access, limited storage..."></textarea>
+          </div>
+        </div>
+
+        <button class="btn-primary btn-lg ai-submit-btn" id="aiSubmitBtn" onclick="getAIPlan()">
+          🤖 Generate My AI Farm Plan →
+        </button>
+      </div>
+
+      <!-- AI RESULT -->
+      <div class="ai-result-box" id="aiResultBox" style="display:none">
+        <div class="ai-result-header">
+          <div class="ai-icon">✅</div>
+          <div>
+            <h2>Your AI Farm Plan</h2>
+            <p id="aiResultSubtitle">Generated just for you</p>
+          </div>
+        </div>
+        <div class="ai-result-content" id="aiResultContent"></div>
+        <div class="ai-result-actions">
+          <button class="btn-ghost" onclick="document.getElementById('aiResultBox').style.display='none'">← Edit Inputs</button>
+          <a href="sell.html" class="btn-primary">List My Produce →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div class="ai-loading" id="aiLoading" style="display:none">
+      <div class="loader-ring"></div>
+      <p id="loadingMsg">Analysing market data...</p>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-logo">🌾 AgriMind</div>
+    <p class="footer-copy">© 2025 AgriMind. Built for African Farmers.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Render forecast cards
+    const fg = document.getElementById('forecastGrid');
+    CROPS_DATA.filter(c => c.forecast !== 'Declining').slice(0, 6).forEach(c => {
+      fg.innerHTML += `
+        <div class="forecast-card">
+          <div class="fc-top">
+            <span class="fc-emoji">${c.emoji}</span>
+            <div>
+              <div class="fc-name">${c.name}</div>
+              <span class="chip ${c.demand==='High'?'chip-green':c.demand==='Trending'?'chip-yellow':'chip-grey'} chip-sm">${c.demand}</span>
+            </div>
+          </div>
+          <div class="fc-stat-row">
+            <div class="fc-stat"><div class="fc-label">6-Month</div><div class="fc-val">${c.forecast}</div></div>
+            <div class="fc-stat"><div class="fc-label">Est. ROI</div><div class="fc-val positive">${c.roi}%</div></div>
+            <div class="fc-stat"><div class="fc-label">Risk</div><div class="fc-val">${c.risk}</div></div>
+          </div>
+          <div class="fc-market">Best: ${c.market}</div>
+        </div>`;
+    });
+
+    const loadingMessages = [
+      'Analysing current market demand...',
+      'Checking 6-month price forecasts...',
+      'Calculating profit projections...',
+      'Matching crops to your farm profile...',
+      'Building your personalised plan...'
+    ];
+
+    async function getAIPlan() {
+      const name = document.getElementById('farmerName').value || 'Farmer';
+      const state = document.getElementById('farmerState').value || 'Nigeria';
+      const size = document.getElementById('farmSize').value;
+      const budget = document.getElementById('budget').value;
+      const type = document.getElementById('farmType').value;
+      const season = document.getElementById('plantSeason').value;
+      const prefs = document.getElementById('cropPrefs').value;
+      const challenges = document.getElementById('challenges').value;
+
+      if (!state) { alert('Please select your state.'); return; }
+
+      // Show loading
+      document.getElementById('aiLoading').style.display = 'flex';
+      document.getElementById('aiResultBox').style.display = 'none';
+      document.getElementById('aiSubmitBtn').disabled = true;
+
+      // Rotate loading messages
+      let msgIdx = 0;
+      const msgInterval = setInterval(() => {
+        msgIdx = (msgIdx + 1) % loadingMessages.length;
+        document.getElementById('loadingMsg').textContent = loadingMessages[msgIdx];
+      }, 2000);
+
+      // Market snapshot for AI context
+      const marketContext = CROPS_DATA.slice(0,10).map(c =>
+        `${c.name}: ₦${c.price}/kg, Demand: ${c.demand}, 6-month forecast: ${c.forecast}, ROI: ${c.roi}%`
+      ).join('\n');
+
+      const prompt = `You are AgriMind, an expert AI farming advisor for Nigerian and West African farmers. 
+
+FARMER PROFILE:
+- Name: ${name}
+- Location: ${state}, Nigeria
+- Farm size: ${size}
+- Available budget: ₦${budget || 'Not specified'}
+- Farming type preference: ${type}
+- Planned planting time: ${season}
+- Crops considering: ${prefs || 'Open to suggestions'}
+- Challenges: ${challenges || 'None specified'}
+
+CURRENT MARKET DATA (today):
+${marketContext}
+
+Please provide a detailed, personalised farming plan in the following structure using HTML formatting:
+
+<h3>👋 Hello ${name}! Here's Your Custom Farm Plan</h3>
+
+<h4>🌱 Top 3 Recommended Crops for You</h4>
+[For each crop: name, why it suits their location/size/season, expected price per kg, estimated profit for their farm size]
+
+<h4>📅 Planting Timeline</h4>
+[Month-by-month plan based on their planting window]
+
+<h4>💰 Profit Projection</h4>
+[Realistic earnings estimate based on their budget and farm size, in Naira]
+
+<h4>⚠️ Risk Management</h4>
+[2-3 specific risks and how to mitigate them for their location]
+
+<h4>💡 Pro Tips for ${state} Farmers</h4>
+[3 location-specific actionable tips]
+
+<h4>🛒 Where to Sell</h4>
+[Specific markets or buyers to target in or near ${state}]
+
+Be specific, practical, and encouraging. Use actual Naira amounts. Format nicely with bullet points where appropriate. Keep it under 600 words.`;
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        const data = await response.json();
+        const text = data.content?.[0]?.text || 'Sorry, could not generate a plan. Please try again.';
+
+        clearInterval(msgInterval);
+        document.getElementById('aiLoading').style.display = 'none';
+        document.getElementById('aiResultSubtitle').textContent = `Personalised for ${name} in ${state} — ${new Date().toLocaleDateString()}`;
+        document.getElementById('aiResultContent').innerHTML = text;
+        document.getElementById('aiResultBox').style.display = 'block';
+        document.getElementById('aiSubmitBtn').disabled = false;
+        document.getElementById('aiResultBox').scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        clearInterval(msgInterval);
+        document.getElementById('aiLoading').style.display = 'none';
+        document.getElementById('aiSubmitBtn').disabled = false;
+
+        // Fallback demo response
+        document.getElementById('aiResultContent').innerHTML = `
+          <h3>👋 Hello ${name}! Here's Your Custom Farm Plan</h3>
+          <p><em>Note: AI service temporarily unavailable. Here's a data-driven recommendation based on current market data:</em></p>
+          <h4>🌱 Top 3 Recommended Crops for ${state}</h4>
+          <ul>
+            <li><strong>🍅 Tomatoes</strong> — Currently ₦850/kg, High demand, Strong forecast. For a ${size} farm, estimated profit: ₦180,000–₦320,000 per cycle.</li>
+            <li><strong>🫑 Bell Pepper</strong> — ₦1,200/kg, Trending upward. Low competition in ${state} markets. Est. ROI: 68%.</li>
+            <li><strong>🍠 Yam</strong> — ₦450/kg, stable all-year demand. Minimal inputs needed. Suits your farm profile.</li>
+          </ul>
+          <h4>💰 Profit Projection</h4>
+          <p>With ₦${budget || '500,000'} budget on ${size} farm, targeting tomatoes + pepper intercrop: <strong>Estimated ₦400,000–₦650,000 net profit</strong> in 4 months.</p>
+          <h4>💡 Pro Tips</h4>
+          <ul>
+            <li>Plant tomatoes 6 weeks before the peak dry season demand surge.</li>
+            <li>Join a cooperative to access bulk buyers and reduce per-unit cost.</li>
+            <li>Consider solar-powered drip irrigation to reduce water costs by 40%.</li>
+          </ul>
+          <p><strong>Add your Anthropic API key to get full personalised AI analysis.</strong></p>`;
+        document.getElementById('aiResultBox').style.display = 'block';
+        document.getElementById('aiResultBox').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>

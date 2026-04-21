@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriMind — Sell Produce</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="inner-page">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌾 AgriMind</a>
+    <div class="nav-links">
+      <a href="market.html">Market</a>
+      <a href="insights.html">AI Insights</a>
+      <a href="sell.html" class="nav-active">Sell</a>
+    </div>
+    <a href="insights.html" class="btn-primary nav-cta">Get AI Plan →</a>
+  </nav>
+
+  <div class="page-hero inner-hero">
+    <div class="section-label">Direct to Buyer</div>
+    <h1 class="page-title">Sell Your Produce</h1>
+    <p class="page-sub">List your harvest and connect directly with verified buyers across Nigeria — no middlemen, better prices.</p>
+  </div>
+
+  <div class="container">
+    <div class="sell-layout">
+
+      <!-- LISTING FORM -->
+      <div class="sell-form-col">
+        <div class="sell-form-box">
+          <h2>📦 Create a Listing</h2>
+          <p class="sell-form-sub">Your produce will be visible to buyers in your region immediately.</p>
+          
+          <div class="form-field">
+            <label>Crop / Produce</label>
+            <select id="listCrop" class="form-input">
+              <option value="">Select crop...</option>
+              <option>🍅 Tomatoes</option><option>🫑 Bell Pepper</option>
+              <option>🧅 Onions</option><option>🌽 Maize</option>
+              <option>🍠 Yam</option><option>🥬 Leafy Vegetables</option>
+              <option>🍌 Plantain</option><option>🥜 Groundnut</option>
+              <option>🌾 Rice (paddy)</option><option>🫘 Beans</option>
+              <option>🍋 Citrus</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Quantity Available (kg)</label>
+            <input type="number" id="listQty" class="form-input" placeholder="e.g. 500"/>
+          </div>
+          <div class="form-field">
+            <label>Your Asking Price (₦ per kg)</label>
+            <input type="number" id="listPrice" class="form-input" placeholder="e.g. 800"/>
+          </div>
+          <div class="form-field">
+            <label>Location (State)</label>
+            <select id="listState" class="form-input">
+              <option value="">Select State...</option>
+              <option>Lagos</option><option>Kano</option><option>Kaduna</option>
+              <option>Oyo</option><option>Rivers</option><option>Anambra</option>
+              <option>Benue</option><option>Plateau</option><option>Enugu</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Harvest Condition</label>
+            <select id="listCondition" class="form-input">
+              <option>Fresh — just harvested</option>
+              <option>Good — within 3 days</option>
+              <option>Available in 1–2 weeks</option>
+              <option>Pre-order (not yet harvested)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Contact / WhatsApp Number</label>
+            <input type="tel" id="listPhone" class="form-input" placeholder="+234 ..."/>
+          </div>
+          <div class="form-field">
+            <label>Additional Notes (optional)</label>
+            <textarea id="listNotes" class="form-input form-textarea" placeholder="e.g. Organic, can deliver, need payment upfront..."></textarea>
+          </div>
+          <button class="btn-primary btn-lg" style="width:100%" onclick="submitListing()">Post Listing →</button>
+        </div>
+
+        <!-- MARKET PRICE TIP -->
+        <div class="price-tip-box" id="priceTip">
+          <div class="tip-header">💡 Current Market Price Tip</div>
+          <p>Select a crop above to see the current market price and whether your asking price is competitive.</p>
+        </div>
+      </div>
+
+      <!-- BUYER REQUESTS + LISTINGS -->
+      <div class="sell-right-col">
+        <!-- Active Listings -->
+        <div class="listings-box">
+          <h3>📋 Active Listings</h3>
+          <p class="sell-form-sub">Posted by farmers in your network</p>
+          <div id="activeListings"></div>
+        </div>
+
+        <!-- Buyer Requests -->
+        <div class="listings-box" style="margin-top:1.5rem">
+          <h3>🛒 Buyer Requests</h3>
+          <p class="sell-form-sub">Verified buyers actively looking for produce</p>
+          <div id="buyerRequests"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUCCESS TOAST -->
+  <div class="toast" id="toast">✅ Listing posted successfully! Buyers can now see your produce.</div>
+
+  <footer class="footer">
+    <div class="footer-logo">🌾 AgriMind</div>
+    <p class="footer-copy">© 2025 AgriMind. Built for African Farmers.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    const SAMPLE_LISTINGS = [
+      { crop: '🍅 Tomatoes', qty: 800, price: 820, state: 'Benue', condition: 'Fresh — just harvested', posted: '2 hours ago' },
+      { crop: '🌽 Maize', qty: 2000, price: 310, state: 'Kano', condition: 'Good — within 3 days', posted: '5 hours ago' },
+      { crop: '🧅 Onions', qty: 500, price: 680, state: 'Sokoto', condition: 'Available in 1–2 weeks', posted: '1 day ago' },
+      { crop: '🍠 Yam', qty: 300, price: 430, state: 'Plateau', condition: 'Fresh — just harvested', posted: '3 hours ago' },
+    ];
+
+    const BUYER_REQUESTS = [
+      { buyer: 'Lagos Supermart', crop: '🍅 Tomatoes', qty: '5,000 kg', budget: '₦800–₦900/kg', location: 'Lagos', urgency: 'Urgent' },
+      { buyer: 'Aba Processing Co.', crop: '🌽 Maize', qty: '10,000 kg', budget: '₦300–₦340/kg', location: 'Abia', urgency: 'This week' },
+      { buyer: 'Northern Grains Ltd', crop: '🌾 Rice (paddy)', qty: '20,000 kg', budget: '₦420–₦460/kg', location: 'Kano', urgency: 'Ongoing' },
+      { buyer: 'FoodCo Nigeria', crop: '🥜 Groundnut', qty: '3,000 kg', budget: '₦700–₦800/kg', location: 'Oyo', urgency: 'Next 2 weeks' },
+    ];
+
+    function renderListings() {
+      const container = document.getElementById('activeListings');
+      container.innerHTML = SAMPLE_LISTINGS.map(l => `
+        <div class="listing-card">
+          <div class="lc-top">
+            <div class="lc-crop">${l.crop}</div>
+            <div class="lc-posted">${l.posted}</div>
+          </div>
+          <div class="lc-details">
+            <span>📦 ${l.qty.toLocaleString()} kg</span>
+            <span>💰 ₦${l.price}/kg</span>
+            <span>📍 ${l.state}</span>
+          </div>
+          <div class="lc-condition">${l.condition}</div>
+          <button class="btn-contact" onclick="contactSeller()">Contact Farmer →</button>
+        </div>`).join('');
+    }
+
+    function renderBuyers() {
+      const container = document.getElementById('buyerRequests');
+      container.innerHTML = BUYER_REQUESTS.map(b => `
+        <div class="buyer-card">
+          <div class="bc-top">
+            <div>
+              <div class="bc-buyer">${b.buyer}</div>
+              <div class="bc-crop">${b.crop}</div>
+            </div>
+            <span class="chip ${b.urgency==='Urgent'?'chip-red':'chip-green'} chip-sm">${b.urgency}</span>
+          </div>
+          <div class="bc-details">
+            <span>📦 ${b.qty}</span>
+            <span>💰 ${b.budget}</span>
+            <span>📍 ${b.location}</span>
+          </div>
+          <button class="btn-contact" onclick="contactBuyer('${b.buyer}')">Send Offer →</button>
+        </div>`).join('');
+    }
+
+    // Price tip on crop change
+    document.getElementById('listCrop').addEventListener('change', function() {
+      const cropName = this.value.replace(/^[^\w]+/, '').trim().split(' ')[0];
+      const match = CROPS_DATA.find(c => c.name.toLowerCase().includes(cropName.toLowerCase()));
+      const tip = document.getElementById('priceTip');
+      if (match) {
+        tip.innerHTML = `
+          <div class="tip-header">💡 Market Insight: ${match.emoji} ${match.name}</div>
+          <div class="tip-row"><span>Current Market Price</span><strong>₦${match.price}/kg</strong></div>
+          <div class="tip-row"><span>Demand</span><strong class="${match.demand==='High'?'positive':''}">${match.demand}</strong></div>
+          <div class="tip-row"><span>6-Month Forecast</span><strong>${match.forecast}</strong></div>
+          <div class="tip-row"><span>Best Selling Market</span><strong>${match.market}</strong></div>
+          <p class="tip-advice">💬 ${match.demand === 'High' ? 'High demand! You can price confidently at or above market rate.' : match.demand === 'Trending' ? 'Trending upward — prices likely to rise. Consider holding stock if possible.' : 'Moderate demand. Price competitively to move stock quickly.'}</p>`;
+      } else {
+        tip.innerHTML = `<div class="tip-header">💡 Market Tip</div><p>Select a crop to see live market pricing data.</p>`;
+      }
+    });
+
+    function submitListing() {
+      const crop = document.getElementById('listCrop').value;
+      const qty = document.getElementById('listQty').value;
+      const price = document.getElementById('listPrice').value;
+      const state = document.getElementById('listState').value;
+
+      if (!crop || !qty || !price || !state) {
+        alert('Please fill in crop, quantity, price, and location.');
+        return;
+      }
+
+      // Add to listings
+      SAMPLE_LISTINGS.unshift({
+        crop, qty: parseInt(qty), price: parseInt(price), state,
+        condition: document.getElementById('listCondition').value,
+        posted: 'Just now'
+      });
+      renderListings();
+
+      // Show toast
+      const toast = document.getElementById('toast');
+      toast.classList.add('toast-show');
+      setTimeout(() => toast.classList.remove('toast-show'), 4000);
+
+      // Reset form
+      ['listCrop','listQty','listPrice','listState','listPhone','listNotes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+      });
+    }
+
+    function contactSeller() {
+      alert('📱 In the full app, this opens a secure WhatsApp chat with the farmer. For now, listings include contact numbers.');
+    }
+
+    function contactBuyer(name) {
+      alert(`📧 Sending your offer to ${name}. In the full app, you'll be connected via secure in-app messaging.`);
+    }
+
+    renderListings();
+    renderBuyers();
+  </script>
+</body>
+</html>

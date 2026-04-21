@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriMind — Market Dashboard</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="inner-page">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌾 AgriMind</a>
+    <div class="nav-links">
+      <a href="market.html" class="nav-active">Market</a>
+      <a href="insights.html">AI Insights</a>
+      <a href="sell.html">Sell</a>
+    </div>
+    <a href="insights.html" class="btn-primary nav-cta">Get AI Plan →</a>
+  </nav>
+
+  <div class="page-hero inner-hero">
+    <div class="section-label">Live Market Data</div>
+    <h1 class="page-title">Crop Market Dashboard</h1>
+    <p class="page-sub">Real-time demand, pricing trends, and 6-month forecasts across Nigerian markets.</p>
+  </div>
+
+  <div class="container">
+
+    <!-- FILTERS -->
+    <div class="filter-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍  Search crop..." oninput="filterCrops()"/>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all', this)">All Crops</button>
+        <button class="filter-tab" onclick="setFilter('High', this)">🔥 High Demand</button>
+        <button class="filter-tab" onclick="setFilter('Trending', this)">📈 Trending</button>
+        <button class="filter-tab" onclick="setFilter('Low', this)">📉 Low Demand</button>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="sum-icon">🌡️</div>
+        <div class="sum-body">
+          <div class="sum-label">Market Temp</div>
+          <div class="sum-val">Hot 🔥</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="sum-icon">📊</div>
+        <div class="sum-body">
+          <div class="sum-label">Crops Tracked</div>
+          <div class="sum-val">52</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="sum-icon">💹</div>
+        <div class="sum-body">
+          <div class="sum-label">Avg Price Change</div>
+          <div class="sum-val positive">+8.4%</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="sum-icon">🕐</div>
+        <div class="sum-body">
+          <div class="sum-label">Last Updated</div>
+          <div class="sum-val" id="lastUpdated">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHART AREA -->
+    <div class="chart-section">
+      <div class="chart-box main-chart-box">
+        <div class="chart-box-header">
+          <h3>Price Trend — Select a Crop</h3>
+          <select id="cropSelect" onchange="updateMainChart()" class="chart-select">
+            <!-- populated by JS -->
+          </select>
+        </div>
+        <canvas id="mainChart" height="120"></canvas>
+      </div>
+      <div class="chart-box demand-chart-box">
+        <div class="chart-box-header">
+          <h3>Demand Distribution</h3>
+        </div>
+        <canvas id="demandPie" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- CROP LIST -->
+    <div class="crop-list-header">
+      <h2>All Crops</h2>
+      <span id="crop-count" class="crop-count-badge">—</span>
+    </div>
+    <div class="crop-table-wrap">
+      <table class="crop-table" id="cropTable">
+        <thead>
+          <tr>
+            <th>Crop</th>
+            <th>Price (₦/kg)</th>
+            <th>Demand</th>
+            <th>7-Day Change</th>
+            <th>6-Month Forecast</th>
+            <th>Best Market</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="cropTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- CROP DETAIL MODAL -->
+  <div id="cropModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="document.getElementById('cropModal').style.display='none'">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-logo">🌾 AgriMind</div>
+    <p class="footer-copy">© 2025 AgriMind. Built for African Farmers.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    let currentFilter = 'all';
+    let mainChartInstance = null;
+
+    // Set timestamp
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+    // Populate select
+    const sel = document.getElementById('cropSelect');
+    CROPS_DATA.forEach((c, i) => {
+      sel.innerHTML += `<option value="${i}">${c.emoji} ${c.name}</option>`;
+    });
+
+    function updateMainChart() {
+      const idx = document.getElementById('cropSelect').value;
+      const crop = CROPS_DATA[idx];
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (mainChartInstance) mainChartInstance.destroy();
+      mainChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: crop.history.labels,
+          datasets: [{
+            label: `${crop.name} Price (₦/kg)`,
+            data: crop.history.prices,
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76,175,80,0.1)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#4CAF50'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => `₦${ctx.raw.toLocaleString()}/kg` } }
+          },
+          scales: {
+            y: {
+              ticks: { callback: v => '₦'+v.toLocaleString() },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            x: { grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+    updateMainChart();
+
+    // Demand pie
+    const pieCtx = document.getElementById('demandPie').getContext('2d');
+    const high = CROPS_DATA.filter(c=>c.demand==='High').length;
+    const trending = CROPS_DATA.filter(c=>c.demand==='Trending').length;
+    const low = CROPS_DATA.filter(c=>c.demand==='Low').length;
+    new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['High Demand','Trending','Low Demand'],
+        datasets: [{
+          data: [high, trending, low],
+          backgroundColor: ['#4CAF50','#F9A825','#EF5350'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { labels: { color: '#ccc', font: { family: 'DM Sans' } } } },
+        cutout: '65%'
+      }
+    });
+
+    function renderTable(filter = 'all', search = '') {
+      const body = document.getElementById('cropTableBody');
+      let data = CROPS_DATA.filter(c => {
+        const matchFilter = filter === 'all' || c.demand === filter;
+        const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
+        return matchFilter && matchSearch;
+      });
+      document.getElementById('crop-count').textContent = `${data.length} crops`;
+      body.innerHTML = data.map((c,i) => `
+        <tr onclick="showModal(${CROPS_DATA.indexOf(c)})" style="cursor:pointer">
+          <td><span class="crop-emoji">${c.emoji}</span> <strong>${c.name}</strong></td>
+          <td>₦${c.price.toLocaleString()}</td>
+          <td><span class="chip ${c.demand==='High'?'chip-green':c.demand==='Trending'?'chip-yellow':'chip-grey'}">${c.demand}</span></td>
+          <td class="${c.change>0?'positive':'negative'}">${c.change>0?'↑':'↓'} ${Math.abs(c.change)}%</td>
+          <td><span class="forecast-badge ${c.forecast==='Strong Rise'?'f-rise':c.forecast==='Moderate Rise'?'f-mod':c.forecast==='Stable'?'f-stable':'f-drop'}">${c.forecast}</span></td>
+          <td>${c.market}</td>
+          <td><button class="btn-detail" onclick="showModal(${CROPS_DATA.indexOf(c)});event.stopPropagation()">Details →</button></td>
+        </tr>`).join('');
+    }
+
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      filterCrops();
+    }
+
+    function filterCrops() {
+      const q = document.getElementById('searchInput').value;
+      renderTable(currentFilter, q);
+    }
+
+    function showModal(idx) {
+      const c = CROPS_DATA[idx];
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-crop-header">
+          <span class="modal-emoji">${c.emoji}</span>
+          <div>
+            <h2>${c.name}</h2>
+            <span class="chip ${c.demand==='High'?'chip-green':c.demand==='Trending'?'chip-yellow':'chip-grey'}">${c.demand}</span>
+          </div>
+        </div>
+        <div class="modal-grid">
+          <div class="modal-stat"><div class="ms-label">Current Price</div><div class="ms-val">₦${c.price.toLocaleString()}/kg</div></div>
+          <div class="modal-stat"><div class="ms-label">7-Day Change</div><div class="ms-val ${c.change>0?'positive':'negative'}">${c.change>0?'↑':'↓'}${Math.abs(c.change)}%</div></div>
+          <div class="modal-stat"><div class="ms-label">Best Market</div><div class="ms-val">${c.market}</div></div>
+          <div class="modal-stat"><div class="ms-label">6-Month Forecast</div><div class="ms-val">${c.forecast}</div></div>
+          <div class="modal-stat"><div class="ms-label">Risk Level</div><div class="ms-val">${c.risk}</div></div>
+          <div class="modal-stat"><div class="ms-label">Est. ROI</div><div class="ms-val positive">${c.roi}%</div></div>
+        </div>
+        <canvas id="modalChart" height="80" style="margin-top:1.5rem"></canvas>
+        <a href="insights.html" class="btn-primary" style="margin-top:1.5rem;display:inline-block">Get AI Plan for ${c.name} →</a>
+      `;
+      document.getElementById('cropModal').style.display = 'flex';
+      const mc = document.getElementById('modalChart').getContext('2d');
+      new Chart(mc, {
+        type: 'bar',
+        data: {
+          labels: c.history.labels,
+          datasets: [{
+            label: 'Price ₦/kg',
+            data: c.history.prices,
+            backgroundColor: 'rgba(76,175,80,0.7)',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { callback: v => '₦'+v }, grid: { color:'rgba(255,255,255,0.05)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'cropModal') document.getElementById('cropModal').style.display = 'none';
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>

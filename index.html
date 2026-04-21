@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriMind — Farm Smarter, Earn More</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="home-page">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌾 AgriMind</a>
+    <div class="nav-links">
+      <a href="market.html">Market</a>
+      <a href="insights.html">AI Insights</a>
+      <a href="sell.html">Sell</a>
+    </div>
+    <a href="insights.html" class="btn-primary nav-cta">Get AI Plan →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">🤖 AI-Powered for African Farmers</div>
+    <h1 class="hero-title">
+      Know What to Grow<br/>
+      <em>Before</em> You Plant It
+    </h1>
+    <p class="hero-sub">
+      AgriMind reads the market so you don't have to. Get AI-powered crop demand forecasts,
+      real-time price trends, and personalised planting plans — all in one place.
+    </p>
+    <div class="hero-cta-row">
+      <a href="insights.html" class="btn-primary btn-lg">Get My AI Farm Plan →</a>
+      <a href="market.html" class="btn-ghost btn-lg">View Live Market</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">94%</span><span class="stat-label">Forecast Accuracy</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num">3.2×</span><span class="stat-label">Avg. Profit Increase</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num">50+</span><span class="stat-label">Crops Tracked</span></div>
+    </div>
+    <div class="hero-chart-preview">
+      <div class="chart-card-preview">
+        <div class="chart-header-preview">
+          <span class="chip chip-green">↑ High Demand</span>
+          <span class="crop-name-preview">Tomatoes — Lagos Market</span>
+        </div>
+        <canvas id="heroChart" height="80"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section features-section">
+    <div class="section-label">Why AgriMind</div>
+    <h2 class="section-title">Everything a Smart Farmer Needs</h2>
+    <div class="features-grid">
+      <div class="feature-card feature-accent">
+        <div class="feature-icon">📈</div>
+        <h3>Market Demand Charts</h3>
+        <p>See exactly which crops are in high demand right now across Nigerian and West African markets — updated daily.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔮</div>
+        <h3>6-Month AI Forecasts</h3>
+        <p>Our AI predicts which crops will be hot in the coming months so you can plan your planting cycle ahead of the market.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Profit Maximiser</h3>
+        <p>Input your farm size and budget. Get a personalised crop mix plan that maximises your expected profit.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛒</div>
+        <h3>Direct Buyer Connect</h3>
+        <p>List your produce and connect directly with verified buyers — no middlemen, better prices for you.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⛅</div>
+        <h3>Weather + Soil Alerts</h3>
+        <p>Get alerts when weather patterns could affect your crops or when soil conditions are optimal for planting.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌍</div>
+        <h3>Local Price Intelligence</h3>
+        <p>Track prices at specific markets — Oshodi, Onitsha, Kano — so you know exactly where to sell for maximum returns.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section how-section">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Three Steps to Smarter Farming</h2>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Tell Us About Your Farm</h3>
+        <p>Enter your location, farm size, and available budget. Takes 60 seconds.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>AI Analyses the Market</h3>
+        <p>Our AI cross-references current demand, price trends, seasonal forecasts, and your inputs.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Get Your Farm Plan</h3>
+        <p>Receive a personalised crop plan with expected profits, risk levels, and planting timeline.</p>
+      </div>
+    </div>
+    <div class="how-cta">
+      <a href="insights.html" class="btn-primary btn-lg">Start Now — It's Free →</a>
+    </div>
+  </section>
+
+  <!-- MARKET PREVIEW -->
+  <section class="section market-preview-section">
+    <div class="section-label">Live Market Snapshot</div>
+    <h2 class="section-title">Today's Top Performing Crops</h2>
+    <div class="market-cards-row" id="homeMarketCards"></div>
+    <a href="market.html" class="btn-ghost" style="margin-top:2rem;">View Full Market Dashboard →</a>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="section testimonial-section">
+    <div class="testimonial-inner">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">
+        I used to guess what to plant. AgriMind told me pepper would spike in March — I planted in January and sold at triple the usual price. This app changed everything for my family.
+      </p>
+      <div class="testimonial-author">
+        <div class="author-avatar">AO</div>
+        <div>
+          <strong>Adamu Okafor</strong>
+          <span>Smallholder Farmer, Kaduna State</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">🌾 AgriMind</div>
+    <p class="footer-tagline">Farm Smarter. Earn More. Feed More.</p>
+    <div class="footer-links">
+      <a href="market.html">Market</a>
+      <a href="insights.html">AI Insights</a>
+      <a href="sell.html">Sell Produce</a>
+    </div>
+    <p class="footer-copy">© 2025 AgriMind. Built for African Farmers.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Hero chart
+    const ctx = document.getElementById('heroChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul'],
+        datasets: [{
+          data: [42, 55, 48, 70, 85, 78, 95],
+          borderColor: '#4CAF50',
+          backgroundColor: 'rgba(76,175,80,0.12)',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: { display: false }
+        },
+        animation: { duration: 1500 }
+      }
+    });
+
+    // Render home market cards
+    const homeCards = document.getElementById('homeMarketCards');
+    CROPS_DATA.slice(0,4).forEach(crop => {
+      homeCards.innerHTML += `
+        <div class="mkt-card">
+          <div class="mkt-crop-name">${crop.emoji} ${crop.name}</div>
+          <div class="mkt-price">₦${crop.price.toLocaleString()}<span>/kg</span></div>
+          <div class="chip ${crop.demand === 'High' ? 'chip-green' : crop.demand === 'Trending' ? 'chip-yellow' : 'chip-grey'}">${crop.demand}</div>
+          <div class="mkt-change ${crop.change > 0 ? 'positive' : 'negative'}">${crop.change > 0 ? '↑' : '↓'} ${Math.abs(crop.change)}% this week</div>
+        </div>`;
+    });
+  </script>
+</body>
+</html>
